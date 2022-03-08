@@ -4,12 +4,14 @@
   "description": "Aulas do curso de introdução a Node.JS da jornada de backend da Staart",
   "main": "index.js",
   "scripts": {
-    "start": "node ./session-03-npm/index.js"
+    "start": "node ./session-03-npm/index.js",
+    "start:09:basics": "node --max-old-space-size=256 session-09-node-streams/basics.js"
   },
   "keywords": [],
   "author": "rodrigobotti",
   "license": "ISC",
   "dependencies": {
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "csv-parse": "^5.0.4"
   }
 }
