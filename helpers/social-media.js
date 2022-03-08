@@ -64,56 +64,58 @@ const checkCredentials = (username, password) =>
 
 const checkToken = token => token === AuthToken
 
-const withCallbacks = (() => {
+/** @typedef {{id:number, title:string, content:string}} Post */
 
+const withCallbacks = (() => {
   /**
    * Autentica o usuário na rede social.
    *
    * @param {string} username username do usuário
    * @param {string} password senha do usuário
    * @param {(error: Error, token: string) => void} cb callback error-first com token de autenticação
+   * @returns {void}
    */
   const authenticate = (username, password, cb) =>
     setTimeout(() =>
       checkCredentials(username, password)
         ? cb(null, AuthToken)
-        : cb(new Error('Invalid credentials'), null)
+        : cb(Error('Invalid credentials'), null)
       , 500)
-
-  /** @typedef {{id:number, title:string, content:string}} Post */
 
   /**
    * Lista todos os posts do usuário autententicado.
    *
    * @param {string} token token do usuário autenticado
    * @param {(error: Error, posts: Post[]) => void} cb callback error-first com lista de posts
+   * @returns {void}
    */
   const listPosts = (token, cb) =>
     setTimeout(() =>
       checkToken(token)
         ? cb(null, Posts)
-        : cb(new Error('Invalid access token'), null)
+        : cb(Error('Invalid access token'), null)
       , 500)
 
   const findPostAsync = (id, cb) => {
     const found = findPost(id)
     return found
       ? cb(null, found)
-      : cb(new Error(`Story with id=${id} not found`), null)
+      : cb(Error(`Story with id=${id} not found`), null)
   }
 
   /**
-   * Obtem o post identificado pelo id
+   * Obtem o post identificado pelo id.
    *
    * @param {string} token token do usuário autenticado
    * @param {number} id id do post
    * @param {(error: Error, post: Post) => void} cb callback error-first com o post
+   * @returns {void}
    */
   const getPost = (token, id, cb) =>
     setTimeout(() =>
       checkToken(token)
         ? findPostAsync(id, cb)
-        : cb(new Error('Invalid access token'), null)
+        : cb(Error('Invalid access token'), null)
       , 500)
 
   return {
@@ -124,6 +126,67 @@ const withCallbacks = (() => {
 
 })()
 
+const withPromises = (() => {
+  const delay = time =>
+    new Promise(resolve =>
+      setTimeout(resolve, time))
+
+  /**
+   * Autentica o usuário na rede social.
+   *
+   * @param {string} username username do usário
+   * @param {string} password senha do usuário
+   * @returns {Promise<string>} token de autenticação
+   */
+  const authenticate = (username, password) =>
+    delay(500)
+      .then(() =>
+        checkCredentials(username, password)
+          ? AuthToken
+          : Promise.reject(Error('Invalid credentials'))
+      )
+
+  const validateToken = token =>
+    checkToken(token)
+      ? Promise.resolve(token)
+      : Promise.reject(Error('Invalid token'))
+
+  /**
+   * Lista todos os posts do usuário autententicado.
+   *
+   * @param {string} token token do usuário autenticado
+   * @returns {Promise<Post[]>} lista de posts
+   */
+  const listPosts = token =>
+    validateToken(token)
+      .then(() => delay(500))
+      .then(() => Posts)
+
+  const findPostAsync = id =>
+    Promise.resolve(
+      findPost(id) ?? Promise.reject(Error(`Post with id=${id} not found`))
+    )
+
+  /**
+   * Obtem o post identificado pelo id.
+   *
+   * @param {string} token token do usuário autenticado
+   * @param {number} id id do post
+   * @returns {Promise<Post>} post
+   */
+  const getPost = (token, id) =>
+    validateToken(token)
+      .then(() => delay(500))
+      .then(() => findPostAsync(id))
+
+  return {
+    authenticate,
+    listPosts,
+    getPost
+  }
+})()
+
 module.exports = {
   withCallbacks,
+  withPromises,
 }
