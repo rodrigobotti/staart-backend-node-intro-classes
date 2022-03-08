@@ -1,0 +1,15 @@
+{
+  "name": "staart-backend-node-intro-sessions",
+  "version": "1.0.0",
+  "description": "Aulas do curso de introdução a Node.JS da jornada de backend da Staart",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./session-03-npm/index.js"
+  },
+  "keywords": [],
+  "author": "rodrigobotti",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2"
+  }
+}
